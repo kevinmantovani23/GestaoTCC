@@ -32,5 +32,5 @@ public class Apresentacao {
 	    @Column(name = "nota", nullable = true)
 	    private Double nota;  // Nota final atribuída pela banca
 
-	    // Getters e Setters
+	    
 }

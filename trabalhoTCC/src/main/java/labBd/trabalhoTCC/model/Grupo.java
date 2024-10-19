@@ -26,7 +26,8 @@ public class Grupo {
 	    @JoinColumn(name = "codigoProfessor")
 	    private Professor orientador;  // Professor orientador
 
-	    @OneToMany(mappedBy = "grupo")
+	    @OneToMany
+	    @JoinColumn(name = "codigoGrupo")
 	    private List<Aluno> alunos;  // Lista de alunos no grupo (máx 4)
 
 }
