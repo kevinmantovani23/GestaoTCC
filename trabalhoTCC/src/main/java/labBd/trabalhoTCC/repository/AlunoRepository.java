@@ -8,5 +8,7 @@ import labBd.trabalhoTCC.model.Aluno;
 
 public interface AlunoRepository extends JpaRepository<Aluno, String>{
 
-	  List<Aluno> findByPercentual_conclusao(Double percentual);
+	  List<Aluno> findByPercentualConclusao(Double percentual);
+	  List<Aluno> findByNome(String nome);
+	  Aluno findByRa(String ra);
 }

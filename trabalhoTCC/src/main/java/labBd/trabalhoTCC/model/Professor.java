@@ -1,8 +1,11 @@
 package labBd.trabalhoTCC.model;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -19,4 +22,7 @@ public class Professor {
 
 	    @Column(name = "titulacao", length = 50, nullable = false)
 	    private String titulacao;  // Titulação do professor (Ex: Doutor, Mestre)
+	    
+	    @OneToMany(mappedBy = "professor")
+	    private List<ProfessorArea> professorAreas;
 }

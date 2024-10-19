@@ -1,7 +1,7 @@
 package labBd.trabalhoTCC.model;
 
 import java.io.Serializable;
- 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +15,9 @@ public class ProfessorAreaID implements Serializable{
 	
 	
 	private static final long serialVersionUID = 1L;
+   
 	private Professor professor;
+	
 	private Area area;
 	
 }

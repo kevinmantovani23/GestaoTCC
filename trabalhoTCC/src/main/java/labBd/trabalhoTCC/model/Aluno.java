@@ -18,7 +18,7 @@ public class Aluno {
 	    @Column(name = "nome", length = 100, nullable = false)
 	    private String nome;  // Nome do aluno
 
-	    @Column(name = "percentual_conclusao", nullable = false)
+	    @Column(name = "percentualConclusao", nullable = false)
 	    private Double percentualConclusao;  // Percentual de conclusão do curso
 
 	   

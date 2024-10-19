@@ -20,7 +20,7 @@ BEGIN
             SELECT 1
             FROM aluno a
             WHERE a.ra IN (SELECT ra FROM grupo WHERE codigo = @codigoGrupo) 
-            AND a.percentual_conclusao < 75
+            AND a.percentualConclusao < 75
         )
         BEGIN
             RAISERROR('Todos os alunos devem ter pelo menos 75% de conclusão para apresentar TCC1.', 16, 1)
@@ -34,7 +34,7 @@ BEGIN
             SELECT 1
             FROM aluno a
             WHERE a.ra IN (SELECT ra FROM grupo WHERE codigo = @codigoGrupo) 
-            AND a.percentual_conclusao < 90
+            AND a.percentualConclusao < 90
         )
         BEGIN
             RAISERROR('Todos os alunos devem ter pelo menos 90% de conclusão para apresentar TCC2.', 16, 1)
@@ -132,3 +132,4 @@ BEGIN
 
     RETURN @qtdGrupos
 END
+
