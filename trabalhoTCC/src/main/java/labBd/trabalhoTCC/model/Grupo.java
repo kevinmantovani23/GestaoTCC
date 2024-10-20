@@ -15,19 +15,28 @@ import lombok.Data;
 @Table(name = "grupo")
 @Data
 public class Grupo {
+	
 	 	@Id
-	    @Column(name = "codigo")
+	    @Column(name = "codigo", nullable = false)
 	    private int codigo;
 
-	    @Column(name = "nome", length = 100, nullable = false)
-	    private String nome;  // Nome do grupo
+	    @Column(name = "tema", length = 100, nullable = false)
+	    private String tema; 
+	    
+	    @ManyToOne
+	    @JoinColumn(name = "codigoArea")
+	    private Area area;
+	    
+	    @ManyToOne
+	    @JoinColumn(name = "codigoSubArea")
+	    private Subarea subArea;
 
 	    @ManyToOne
 	    @JoinColumn(name = "codigoProfessor")
-	    private Professor orientador;  // Professor orientador
+	    private Professor orientador;  
 
 	    @OneToMany
 	    @JoinColumn(name = "codigoGrupo")
-	    private List<Aluno> alunos;  // Lista de alunos no grupo (máx 4)
+	    private List<Aluno> alunos;  
 
 }

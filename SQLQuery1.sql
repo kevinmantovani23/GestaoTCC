@@ -1,4 +1,6 @@
 create database bancatcc
+
+
 use bancatcc
 
  --Trigger para verificar se os alunos tem o percentual de conclusão necessário para o tcc

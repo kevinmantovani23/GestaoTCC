@@ -12,12 +12,10 @@ import lombok.Data;
 @Table(name = "subarea")
 @Data
 public class Subarea {
+		
 		@Id
-	    @Column(name = "codigo")
-	    private int codigo;
-
 	    @Column(name = "nome", length = 100, nullable = false)
-	    private String nome;  // Nome da subárea do conhecimento
+	    private String nome;  
 
 	    @ManyToOne
 	    @JoinColumn(name = "codigoArea")
