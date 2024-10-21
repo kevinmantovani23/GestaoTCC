@@ -103,7 +103,7 @@ BEGIN
 	
     SELECT @dataApresentacao = dataApresentacao FROM INSERTED
 	 
-    IF DATEDIFF(DAY, GETDATE(), @dataApresentacao) > 7
+    IF DATEDIFF(DAY, GETDATE(), @dataApresentacao) < 7
     BEGIN
         RAISERROR('A data da apresentação deve ser agendada em até 1 semana.', 16, 1)
         ROLLBACK TRANSACTION
@@ -152,7 +152,7 @@ AS
 BEGIN
 	DECLARE @codigo INT
 
-	SELECT @codigo = codigo FROM INSERTED
+	SELECT @codigo = codigo FROM DELETED
 
 	DELETE FROM banca
 	WHERE apresentacaoCodigo = @codigo

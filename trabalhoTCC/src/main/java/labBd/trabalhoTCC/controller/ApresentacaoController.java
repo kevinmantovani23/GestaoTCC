@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import jakarta.transaction.Transactional;
 import labBd.trabalhoTCC.model.Apresentacao;
 import labBd.trabalhoTCC.model.Grupo;
 import labBd.trabalhoTCC.model.Professor;
@@ -89,7 +90,8 @@ public class ApresentacaoController {
 		mv.addObject("apresentacao", new Apresentacao());
 		return mv;
 	}
-
+	
+	@Transactional
 	@GetMapping("apresentacoes/delete/{codigo}")
 	public ModelAndView deleteApresentacao(@PathVariable int codigo) {
 		apRep.deleteById(codigo);
