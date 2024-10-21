@@ -34,7 +34,9 @@ public class ProfessorController {
 
 	@GetMapping("/professores")
 	public ModelAndView listarProfessores() {
+		lista.clear();
 		lista.addAll(profRep.findAll());
+		lista = addQtdGrupo(lista);
 		ModelAndView model = new ModelAndView("professores");
 		model.addObject("professores", lista);
 		model.addObject("professor", new Professor());
@@ -60,9 +62,11 @@ public class ProfessorController {
 			if (area == null || area.isBlank()) {
 				lista.clear();
 				lista.addAll(profRep.findAll());
+				lista = addQtdGrupo(lista);
 			} else {
 				lista.clear();
 				lista.addAll(profRep.findByNomeArea(area));
+				lista = addQtdGrupo(lista);
 			}
 		} else if ("adicionar".equals(acao)) {
 			Optional<Area> areaopt = areaRep.findById(area);
@@ -75,6 +79,9 @@ public class ProfessorController {
 			}//else?
 
 		}
+		lista.clear();
+		lista.addAll(profRep.findAll());
+		lista = addQtdGrupo(lista);
 		ModelAndView mv = new ModelAndView("professores");
 		mv.addObject("professores", lista);
 		mv.addObject("professor", new Professor());
@@ -86,9 +93,17 @@ public class ProfessorController {
 		profRep.deleteById(codigo);
 		lista.clear();
 		lista.addAll(profRep.findAll());
+		lista = addQtdGrupo(lista);
 		ModelAndView mv = new ModelAndView("professores");
 		mv.addObject("professores", lista);
 		mv.addObject("professor", new Professor());
 		return mv;
+	}
+	
+	private List<Professor> addQtdGrupo(List<Professor> listaPro){
+		for (Professor p : listaPro) {
+			p.setQtdGrupos(profRep.quantidadeGrupos(p.getCodigo()));
+		}
+		return listaPro;
 	}
 }

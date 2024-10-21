@@ -47,6 +47,7 @@
             <th>Codigo</th>
             <th>Nome</th>
             <th>Titulação</th>
+            <th>Quantidade de grupos orientando no momento</th>
             <th>Ações</th>
         </tr>
     </thead>
@@ -55,6 +56,7 @@
             <td th:text="${professor.codigo}"></td>
             <td th:text="${professor.nome}"></td>
             <td th:text="${professor.titulacao}"></td>
+            <td th:text="${professor.qtdGrupos}"></td>
             <td>
                 <a th:href="@{/professores/editar/{codigo}(codigo=${professor.codigo})}">Editar</a>
                 <a th:href="@{/professores/delete/{codigo}(codigo=${professor.codigo})}">Excluir</a>
