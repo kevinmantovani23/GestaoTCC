@@ -62,11 +62,11 @@ public class ProfessorController {
 			if (area == null || area.isBlank()) {
 				lista.clear();
 				lista.addAll(profRep.findAll());
-				lista = addQtdGrupo(lista);
+				
 			} else {
 				lista.clear();
 				lista.addAll(profRep.findByNomeArea(area));
-				lista = addQtdGrupo(lista);
+				
 			}
 		} else if ("adicionar".equals(acao)) {
 			Optional<Area> areaopt = areaRep.findById(area);
@@ -79,8 +79,7 @@ public class ProfessorController {
 			}//else?
 
 		}
-		lista.clear();
-		lista.addAll(profRep.findAll());
+		
 		lista = addQtdGrupo(lista);
 		ModelAndView mv = new ModelAndView("professores");
 		mv.addObject("professores", lista);
