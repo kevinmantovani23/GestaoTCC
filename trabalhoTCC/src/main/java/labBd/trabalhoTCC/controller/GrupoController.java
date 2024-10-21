@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,16 +17,16 @@ import labBd.trabalhoTCC.model.Aluno;
 import labBd.trabalhoTCC.model.Area;
 import labBd.trabalhoTCC.model.Grupo;
 import labBd.trabalhoTCC.model.Professor;
-import labBd.trabalhoTCC.model.ProfessorArea;
 import labBd.trabalhoTCC.model.Subarea;
 import labBd.trabalhoTCC.repository.AlunoRepository;
 import labBd.trabalhoTCC.repository.AreaRepository;
 import labBd.trabalhoTCC.repository.GrupoRepository;
-import labBd.trabalhoTCC.repository.ProfessorAreaRepository;
 import labBd.trabalhoTCC.repository.ProfessorRepository;
 import labBd.trabalhoTCC.repository.SubareaRepository;
 
+@Controller
 public class GrupoController {
+	
 	@Autowired
 	private GrupoRepository gpRep;
 	@Autowired
@@ -47,30 +48,32 @@ public class GrupoController {
 		listaProfessor.clear();
 		listaProfessor.addAll(profRep.findAll());
 		listaGrupo.addAll(gpRep.findAll());
-		ModelAndView model = new ModelAndView("grupos");
-		model.addObject("professores", listaProfessor);
-		model.addObject("grupos", listaGrupo);
-		model.addObject("professor", new Professor());
-		model.addObject("grupo", new Grupo());
-		return model;
+		ModelAndView mv = new ModelAndView("grupos");
+		mv.addObject("professores", listaProfessor);
+		mv.addObject("grupos", listaGrupo);
+		mv.addObject("subareas", listaSubarea);
+		mv.addObject("grupo", new Grupo());
+		return mv;
 	}
 
 	@GetMapping("/grupos/editar/{codigo}")
 	public ModelAndView editarGrupo(@PathVariable("codigo") int codigo) {
 
 		Grupo grupo = gpRep.findById(codigo).get();
-		ModelAndView model = new ModelAndView("grupos");
-		model.addObject("grupo", grupo);
-		model.addObject("grupos", listaGrupo);
-		model.addObject("professores", listaProfessor);
-		return model;
+		ModelAndView mv = new ModelAndView("grupos");
+		mv.addObject("professores", listaProfessor);
+		mv.addObject("grupos", listaGrupo);
+		mv.addObject("subareas", listaSubarea);
+		mv.addObject("grupo", grupo);
+		return mv;
 	}
 
 	@PostMapping("/grupos")
-	public ModelAndView grupoCreate(@ModelAttribute("grupo") Grupo grupo, @RequestParam("professorCod") int professor,
-			@RequestParam("subarea") String subarea, @RequestParam("acao") String acao, @RequestParam("area") String area,
-			@RequestParam("aluno") String aluno, @RequestParam("professorNome") String profNome,
-			@RequestParam("alunoNome") String alNome) {
+	public ModelAndView grupoCreate(@ModelAttribute("grupo") Grupo grupo, @RequestParam(name = "professorCod", required = false) Integer professor,
+			@RequestParam(name = "subarea", required = false) String subarea, @RequestParam("acao") String acao, 
+			@RequestParam(name = "area", required = false) String area, @RequestParam(name = "aluno", required = false) String aluno, 
+			@RequestParam(name = "professorNome", required = false) String profNome,
+			@RequestParam(name = "alunoNome", required = false) String alNome) {
 
 		if ("gravar".equals(acao)) {
 			Professor prof = profRep.findById(professor).get();
@@ -80,6 +83,7 @@ public class GrupoController {
 			grupo.setSubArea(subareaobj);
 			grupo.setOrientador(prof);
 			gpRep.save(grupo);
+			grupo = new Grupo();
 
 		} else if ("pesquisarGrupo".equals(acao)) {
 			if (profNome == null || profNome.isBlank()) {
@@ -88,15 +92,16 @@ public class GrupoController {
 					listaGrupo.addAll(gpRep.findAll());
 				} else {
 					listaGrupo.clear();
-					listaGrupo.addAll(profRep.findByNomeAluno(alNome));
+					listaGrupo.addAll(gpRep.findByNomeAluno(alNome));
 				}
 			} else {
 				listaGrupo.clear();
-				listaGrupo.addAll(profRep.findByNomeProf(profNome));
+				listaGrupo.addAll(gpRep.findByNomeProfessor(profNome));
 			}
+			grupo = new Grupo();
 
 		} else if ("pesquisarArea".equals(acao)) {
-			if (area != null || !area.isBlank()) {
+			if (area != null && !area.isBlank()) {
 				listaSubarea.clear();
 				listaSubarea.addAll(subRep.findByNomeArea(area));
 				listaProfessor.clear();
@@ -104,36 +109,42 @@ public class GrupoController {
 			}
 			
 		} else if ("adicionar".equals(acao)) {
-			if (grupo.getOrientador() == null) {
-
+			if (gpRep.findById(grupo.getCodigo()).isEmpty()) {
+				System.out.print("grupo nao existe");
 			} else {
 				Optional<Aluno> alopt = alRep.findById(aluno);
 				if (alopt.isPresent()) {
 					Aluno alunoobj = alopt.get();
-					gpRep.save(grupo);
 					alunoobj.setGrupo(grupo);
 					alRep.save(alunoobj);
+					grupo = new Grupo();
 				}
 			}
 		}
 		ModelAndView mv = new ModelAndView("grupos");
-		mv.addObject("professores", lista);
-		mv.addObject("professor", new Professor());
+		mv.addObject("professores", listaProfessor);
+		mv.addObject("grupos", listaGrupo);
+		mv.addObject("subareas", listaSubarea);
+		mv.addObject("grupo", grupo);
 		return mv;
 	}
 
 	@GetMapping("grupos/delete/{codigo}")
-	public ModelAndView deleteProfessor(@PathVariable int codigo) {
+	
+	public ModelAndView deleteGrupo(@PathVariable int codigo) {
+		Grupo grupo = gpRep.findById(codigo).get();
+		for (Aluno aluno : grupo.getAlunos()) {
+	        aluno.setGrupo(null); 
+	        alRep.save(aluno); 
+	    }
 		gpRep.deleteById(codigo);
 		listaGrupo.clear();
-		listaProfessor.clear();
 		listaGrupo.addAll(gpRep.findAll());
-		listaProfessor.addAll(profRep.findAll());
-		ModelAndView mv = new ModelAndView("professores");
+		ModelAndView mv = new ModelAndView("grupos");
 		mv.addObject("professores", listaProfessor);
 		mv.addObject("grupos", listaGrupo);
+		mv.addObject("subareas", listaSubarea);
 		mv.addObject("grupo", new Grupo());
-		mv.addObject("professor", new Professor());
 		return mv;
 	}
 

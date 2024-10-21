@@ -16,7 +16,6 @@ import org.springframework.web.servlet.ModelAndView;
 import labBd.trabalhoTCC.model.Area;
 import labBd.trabalhoTCC.model.Professor;
 import labBd.trabalhoTCC.model.ProfessorArea;
-import labBd.trabalhoTCC.model.ProfessorAreaID;
 import labBd.trabalhoTCC.repository.AreaRepository;
 import labBd.trabalhoTCC.repository.ProfessorAreaRepository;
 import labBd.trabalhoTCC.repository.ProfessorRepository;

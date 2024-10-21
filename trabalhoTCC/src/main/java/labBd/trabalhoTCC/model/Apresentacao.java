@@ -27,10 +27,10 @@ public class Apresentacao {
 	    private LocalDate dataApresentacao; 
 
 	    @Column(name = "tipoTcc", length = 4, nullable = false)
-	    private String tipoTCC;  // TCC1 ou TCC2
+	    private String tipoTCC;  
 
 	    @Column(name = "nota", nullable = true)
-	    private Double nota;  // Nota final atribuída pela banca
+	    private Double nota;  
 
 	    
 }

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+	crossorigin="anonymous" />
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+	crossorigin="anonymous"></script>
+</head>
+<body>
+
+	<h1>Gerenciar Apresentacao</h1>
+
+	<div>
+
+
+		<form th:action="@{/apresentacoes}" method="post"
+			th:object="${apresentacao}">
+			<table>
+				<tbody>
+					<tr>
+						<td><label>Codigo:</label></td>
+						<td><input type="number" id="codigo" th:field="*{codigo}"></td>
+					</tr>
+
+					<tr>
+						<td><label>Data:</label></td>
+						<td><input type="date" id="dataApresentacao"
+							th:field="*{dataApresentacao}"></td>
+					</tr>
+					<tr>
+						<td><label>Nota:</label></td>
+						<td><input type="number" id="nota" th:field="*{nota}"></td>
+					</tr>
+					<tr>
+						<td><label>Codigo do grupo:</label></td>
+						<td><input type="number" id="grupo" name="grupo"></td>
+					</tr>
+					<tr>
+						<td><label> <input type="radio" th:field="*{tipoTCC}"
+								value="TCC1" checked> TCC1
+						</label></td>
+						<td><label> <input type="radio" th:field="*{tipoTCC}"
+								value="TCC2"> TCC2
+						</label></td>
+					</tr>
+					<tr>
+						<td><button type="submit" name="acao" value="gravar">Gravar</button></td>
+						<td><button type="submit" name="acao" value="pesquisar">Pesquisar</button></td>
+					</tr>
+					<tr>
+						<td><label for="professorCodigos">Selecione 3
+								Professores:</label><br>
+							<div th:each="prof : ${professores}">
+								<label> <input type="checkbox" th:value="${prof.codigo}"
+									th:name="'professorCodigos'"
+									 />
+									<span th:text="${prof.nome}"></span>
+								</label><br>
+							</div></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+
+	<h2>Lista de Apresentações</h2>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Codigo</th>
+				<th>Tema</th>
+				<th>Data da Apresentação</th>
+				<th>Nota</th>
+				<th>Tipo do tcc</th>
+				<th>Ações</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="apresentacao : ${apresentacoes}">
+				<td th:text="${apresentacao.codigo}"></td>
+				<td th:text="${apresentacao.grupo.tema}"></td>
+				<td th:text="${apresentacao.dataApresentacao}"></td>
+				<td th:text="${apresentacao.nota}"></td>
+				<td th:text="${apresentacao.tipoTCC}"></td>
+				<td><a
+					th:href="@{/apresentacoes/editar/{codigo}(codigo=${apresentacao.codigo})}">Editar</a>
+					<a
+					th:href="@{/apresentacoes/delete/{codigo}(codigo=${apresentacao.codigo})}">Excluir</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+</body>
+</html>

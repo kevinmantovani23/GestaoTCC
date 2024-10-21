@@ -6,7 +6,7 @@ use bancatcc
  --Trigger para verificar se os alunos tem o percentual de conclusão necessário para o tcc
 CREATE TRIGGER trg_Validar_TCC
 ON apresentacao
-INSTEAD OF INSERT, UPDATE
+AFTER INSERT, UPDATE
 AS
 BEGIN
     DECLARE @codigoGrupo INT
@@ -19,9 +19,9 @@ BEGIN
     IF @tipoTCC = 'TCC1'
     BEGIN
         IF EXISTS (
-            SELECT 1
+            SELECT *
             FROM aluno a
-            WHERE a.ra IN (SELECT ra FROM grupo WHERE codigo = @codigoGrupo) 
+            WHERE a.codigoGrupo = @codigoGrupo 
             AND a.percentualConclusao < 75
         )
         BEGIN
@@ -33,9 +33,9 @@ BEGIN
     ELSE IF @tipoTCC = 'TCC2'
     BEGIN
         IF EXISTS (
-            SELECT 1
+            SELECT *
             FROM aluno a
-            WHERE a.ra IN (SELECT ra FROM grupo WHERE codigo = @codigoGrupo) 
+            WHERE a.codigoGrupo = @codigoGrupo 
             AND a.percentualConclusao < 90
         )
         BEGIN
@@ -44,41 +44,24 @@ BEGIN
             RETURN
         END
     END
-
-
-    INSERT INTO apresentacao (codigoGrupo, dataApresentacao, tipoTcc, nota)
-    SELECT codigoGrupo, dataApresentacao, tipoTcc, nota
-    FROM INSERTED
 END
 
 --Trigger grupo com mais de 4 alunos
 CREATE TRIGGER trg_Validar_Limite_Alunos
-ON grupo
-INSTEAD OF INSERT, UPDATE
+ON aluno --Valida o aluno porque ele que possui a chave secundária
+AFTER UPDATE
 AS
 BEGIN
     DECLARE @codigoGrupo INT
+    SELECT @codigoGrupo = codigoGrupo FROM INSERTED
     
-    SELECT @codigoGrupo = codigo FROM INSERTED
-    
-    IF (SELECT COUNT(*) FROM aluno WHERE codigoGrupo = @codigoGrupo) >= 4
+    IF (SELECT COUNT(*) FROM aluno WHERE codigoGrupo = @codigoGrupo) > 4
     BEGIN
         RAISERROR('Um grupo não pode ter mais de 4 alunos.', 16, 1)
         ROLLBACK TRANSACTION
         RETURN
     END
-
-    IF EXISTS (SELECT * FROM grupo WHERE codigo = @codigoGrupo)
-    BEGIN
-        UPDATE grupo
-        SET nome = (SELECT nome FROM INSERTED WHERE codigo = @codigoGrupo)
-        WHERE codigo = @codigoGrupo
-    END
-    ELSE
-    BEGIN 
-        INSERT INTO grupo (codigo, nome, codigoProfessor)
-        SELECT codigo, nome, codigoProfessor FROM INSERTED
-    END
+    
 END
 
 --Trigger banca deve ter exatos 3 professores 
@@ -98,12 +81,18 @@ BEGIN
 
     IF @numProfessores != 3
     BEGIN
+		DELETE FROM banca
+		WHERE apresentacaoCodigo = @codigoApresentacao
+		DELETE FROM apresentacao
+		WHERE codigo = @codigoApresentacao
+		
         RAISERROR('Uma apresentação deve ter exatamente 3 professores na banca.', 16, 1)
-        ROLLBACK TRANSACTION
+        
     END
 END
 
---Apresentação agendada em ate 3 semanas
+
+--Apresentação agendada em ate 1 semana
 
 CREATE TRIGGER trg_Validar_Data_Apresentacao
 ON apresentacao
@@ -114,11 +103,31 @@ BEGIN
 	
     SELECT @dataApresentacao = dataApresentacao FROM INSERTED
 	 
-    IF DATEDIFF(DAY, GETDATE(), @dataApresentacao) > 21
+    IF DATEDIFF(DAY, GETDATE(), @dataApresentacao) > 7
     BEGIN
-        RAISERROR('A data da apresentação deve ser agendada em até 3 semanas a partir de hoje.', 16, 1)
+        RAISERROR('A data da apresentação deve ser agendada em até 1 semana.', 16, 1)
         ROLLBACK TRANSACTION
     END
+END
+
+--Só permiti trocar a data da apresentação e nota, pois faz mais sentido deletar ela e criar outra caso seja alterações na banca ou grupo.
+CREATE TRIGGER trg_Atualizar_ApenasData 
+ON apresentacao
+INSTEAD OF UPDATE
+AS
+BEGIN
+    DECLARE @dataApresentacao DATE
+	DECLARE @codigo INT
+	DECLARE @nota FLOAT
+
+    SELECT @dataApresentacao = dataApresentacao FROM INSERTED
+	SELECT @codigo = codigo FROM INSERTED
+	SELECT @nota = nota FROM INSERTED
+
+    UPDATE apresentacao
+	SET dataApresentacao = @dataApresentacao,
+	nota = @nota
+	WHERE codigo = @codigo
 END
 
 --UDF com quantidades de grupos de um professor
@@ -128,10 +137,27 @@ AS
 BEGIN
     DECLARE @qtdGrupos INT
 
-    SELECT @qtdGrupos = COUNT(*)
-    FROM grupo
+    SELECT @qtdGrupos = COUNT(*) 
+	FROM grupo
     WHERE codigoProfessor = @codigoProfessor
 
     RETURN @qtdGrupos
+END
+
+
+CREATE TRIGGER trg_Deletar_Cascata
+ON apresentacao
+INSTEAD OF DELETE
+AS
+BEGIN
+	DECLARE @codigo INT
+
+	SELECT @codigo = codigo FROM INSERTED
+
+	DELETE FROM banca
+	WHERE apresentacaoCodigo = @codigo
+
+	DELETE FROM apresentacao
+	WHERE codigo = @codigo
 END
 
