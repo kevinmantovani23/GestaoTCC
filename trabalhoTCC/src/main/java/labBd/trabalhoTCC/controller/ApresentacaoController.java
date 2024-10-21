@@ -69,9 +69,11 @@ public class ApresentacaoController {
 			if (grpopt.isPresent()) {
 				Grupo gpobj = grpopt.get();
 				apresentacao.setGrupo(gpobj);
-				apRep.save(apresentacao);
 				if(!apRep.findById(apresentacao.getCodigo()).isPresent()){
+					apRep.save(apresentacao);
 					bcRep.addProfessores(apresentacao.getCodigo(), professorCodigos);
+				} else {
+					apRep.save(apresentacao);
 				}
 			}
 		} else if ("pesquisar".equals(acao)) {
