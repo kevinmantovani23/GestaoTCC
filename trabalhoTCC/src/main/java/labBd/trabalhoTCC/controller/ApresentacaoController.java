@@ -65,7 +65,15 @@ public class ApresentacaoController {
 	public ModelAndView apresentacaoCreate(@ModelAttribute("apresentacao") Apresentacao apresentacao, @RequestParam("acao") String acao,
 			@RequestParam(value = "grupo", required = false) int grupo,  @RequestParam(value ="professorCodigos", required = false) List<Integer> professorCodigos) {
 		if ("gravar".equals(acao)) {  //Só permiti trocar a data da apresentação, pois faz mais sentido deletar ela e criar outra caso seja alterações na banca.
-			apRep.save(apresentacao);
+			Optional<Grupo> grpopt = gpRep.findById(grupo);
+			if (grpopt.isPresent()) {
+				Grupo gpobj = grpopt.get();
+				apresentacao.setGrupo(gpobj);
+				apRep.save(apresentacao);
+				if(!apRep.findById(apresentacao.getCodigo()).isPresent()){
+					bcRep.addProfessores(apresentacao.getCodigo(), professorCodigos);
+				}
+			}
 		} else if ("pesquisar".equals(acao)) {
 			if (apresentacao.getDataApresentacao() == null) {
 				listaApresentacao.clear();
@@ -74,14 +82,7 @@ public class ApresentacaoController {
 				listaApresentacao.clear();
 				listaApresentacao.addAll(apRep.findByDataApresentacao(apresentacao.getDataApresentacao()));
 			}
-		} else if ("adicionar".equals(acao)) {
-			Optional<Grupo> grpopt = gpRep.findById(grupo);
-			if (grpopt.isPresent()) {
-				Grupo gpobj = grpopt.get();
-				apresentacao.setGrupo(gpobj);
-				apRep.save(apresentacao);
-				bcRep.addProfessores(apresentacao.getCodigo(), professorCodigos);		
-			}//else?
+		
 		}
 			
 		ModelAndView mv = new ModelAndView("apresentacoes");
@@ -91,7 +92,7 @@ public class ApresentacaoController {
 		return mv;
 	}
 	
-	@Transactional
+	
 	@GetMapping("apresentacoes/delete/{codigo}")
 	public ModelAndView deleteApresentacao(@PathVariable int codigo) {
 		apRep.deleteById(codigo);

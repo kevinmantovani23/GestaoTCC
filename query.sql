@@ -83,6 +83,7 @@ BEGIN
     BEGIN
 		DELETE FROM banca
 		WHERE apresentacaoCodigo = @codigoApresentacao
+
 		DELETE FROM apresentacao
 		WHERE codigo = @codigoApresentacao
 		
@@ -160,4 +161,3 @@ BEGIN
 	DELETE FROM apresentacao
 	WHERE codigo = @codigo
 END
-

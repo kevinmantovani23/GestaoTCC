@@ -1,5 +1,6 @@
 package labBd.trabalhoTCC.controller;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,7 @@ import labBd.trabalhoTCC.repository.SubareaRepository;
 
 @Controller
 public class GrupoController {
-	
+
 	@Autowired
 	private GrupoRepository gpRep;
 	@Autowired
@@ -69,11 +70,14 @@ public class GrupoController {
 	}
 
 	@PostMapping("/grupos")
-	public ModelAndView grupoCreate(@ModelAttribute("grupo") Grupo grupo, @RequestParam(name = "professorCod", required = false) Integer professor,
-			@RequestParam(name = "subarea", required = false) String subarea, @RequestParam("acao") String acao, 
-			@RequestParam(name = "area", required = false) String area, @RequestParam(name = "aluno", required = false) String aluno, 
+	public ModelAndView grupoCreate(@ModelAttribute("grupo") Grupo grupo,
+			@RequestParam(name = "professorCod", required = false) Integer professor,
+			@RequestParam(name = "subarea", required = false) String subarea, @RequestParam("acao") String acao,
+			@RequestParam(name = "area", required = false) String area,
+			@RequestParam(name = "aluno", required = false) String aluno,
 			@RequestParam(name = "professorNome", required = false) String profNome,
-			@RequestParam(name = "alunoNome", required = false) String alNome) {
+			@RequestParam(name = "alunoNome", required = false) String alNome,
+			@RequestParam(name = "data", required = false) LocalDate data) {
 
 		if ("gravar".equals(acao)) {
 			Professor prof = profRep.findById(professor).get();
@@ -88,26 +92,32 @@ public class GrupoController {
 		} else if ("pesquisarGrupo".equals(acao)) {
 			if (profNome == null || profNome.isBlank()) {
 				if (alNome == null || alNome.isBlank()) {
-					listaGrupo.clear();
-					listaGrupo.addAll(gpRep.findAll());
+					if (data == null) {
+						listaGrupo.clear();
+						listaGrupo.addAll(gpRep.findAll());
+					} else {
+						listaGrupo.clear();
+						listaGrupo.addAll(gpRep.findByDataAgendamento(data));
+					}
 				} else {
 					listaGrupo.clear();
 					listaGrupo.addAll(gpRep.findByNomeAluno(alNome));
 				}
+
 			} else {
 				listaGrupo.clear();
 				listaGrupo.addAll(gpRep.findByNomeProfessor(profNome));
 			}
 			grupo = new Grupo();
-
 		} else if ("pesquisarArea".equals(acao)) {
+
 			if (area != null && !area.isBlank()) {
 				listaSubarea.clear();
 				listaSubarea.addAll(subRep.findByNomeArea(area));
 				listaProfessor.clear();
 				listaProfessor.addAll(profRep.findByNomeArea(area));
 			}
-			
+
 		} else if ("adicionar".equals(acao)) {
 			if (gpRep.findById(grupo.getCodigo()).isEmpty()) {
 				System.out.print("grupo nao existe");
@@ -130,13 +140,13 @@ public class GrupoController {
 	}
 
 	@GetMapping("grupos/delete/{codigo}")
-	
+
 	public ModelAndView deleteGrupo(@PathVariable int codigo) {
 		Grupo grupo = gpRep.findById(codigo).get();
 		for (Aluno aluno : grupo.getAlunos()) {
-	        aluno.setGrupo(null); 
-	        alRep.save(aluno); 
-	    }
+			aluno.setGrupo(null);
+			alRep.save(aluno);
+		}
 		gpRep.deleteById(codigo);
 		listaGrupo.clear();
 		listaGrupo.addAll(gpRep.findAll());

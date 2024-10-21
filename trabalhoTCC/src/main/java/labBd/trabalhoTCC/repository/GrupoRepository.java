@@ -19,6 +19,6 @@ public interface GrupoRepository extends JpaRepository<Grupo, Integer> {
 	   List<Grupo> findByNomeProfessor(@Param("nomeProfessor") String nomeProfessor);
 
 	   
-	   @Query(value ="SELECT * FROM Grupo g JOIN Apresentacao a ON g.codigo = a.codigoGrupo WHERE a.dataApresentacao = :data", nativeQuery = true)
+	   @Query(value ="SELECT g.* FROM Grupo g JOIN Apresentacao a ON g.codigo = a.codigoGrupo WHERE a.dataApresentacao = :data", nativeQuery = true)
 	   List<Grupo> findByDataAgendamento(@Param("data") LocalDate data);
 }
